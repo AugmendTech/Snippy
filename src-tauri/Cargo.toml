@@ -24,6 +24,7 @@ lazy_static = "1.4"
 parking_lot = "0.12"
 png = "0.17"
 base64 = "0.22"
+tokio = { version="1.37.0", features = ["time"] }
 
 [target.'cfg(windows)'.dependencies]
 crabgrab = { path = "../CrabGrab", features = ["bitmap", "screenshot", "dx11"] }

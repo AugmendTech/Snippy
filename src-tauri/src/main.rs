@@ -7,6 +7,7 @@ use crabgrab::{capturable_content::{CapturableContent, CapturableContentFilter, 
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tauri::Manager;
+use tokio::time::{timeout, Duration};
 
 lazy_static! {
 	static ref WINDOW_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -79,15 +80,24 @@ async fn get_windows() -> String {
 		window_map.iter().map(|(window, id)| (window.clone(), *id)).collect()
 	};
 	let mut window_list_json = "[".to_string();
-	let window_count = window_list.len();
-	for (i, (window, id)) in window_list.iter().enumerate() {
+	let mut is_first = true;
+	for (window, id) in window_list.iter() {
 		let screenshot_config = CaptureConfig::with_window(window.clone(), CapturePixelFormat::Bgra8888).unwrap();
-		if let Ok(Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888))) = take_screenshot(screenshot_config).await.map(|frame| frame.get_bitmap()) {
+		let screenshot_task = take_screenshot(screenshot_config);
+		let screenshot_result = timeout(Duration::from_millis(250), screenshot_task).await;
+
+		let screenshot = match screenshot_result {
+			Ok(output) => output,
+			_ => continue
+		};
+
+		if let Ok(Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888))) = screenshot.map(|frame| frame.get_bitmap()) {
 			let image_base64 = make_base64_png_from_bitmap(image_bitmap_bgra8888);
+			if !is_first {
+				window_list_json += ",\n";
+			}
+			is_first = false;
 			window_list_json += &format!("{{\"id\": {}, \"thumbnail\": \"{}\"}}", id, image_base64);
-		}
-		if i + 1 < window_count {
-			window_list_json += ",\n";
 		}
 	}
 	window_list_json += "]";
