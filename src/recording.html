@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", async (e) => {
+            let start_time = window.performance.now();
+            window.setInterval(function() {
+
+                var elapsed = window.performance.now() - start_time;
+                var seconds = Math.floor(elapsed / 1000.0);
+                var minutes = Math.floor(seconds / 60);
+                var seconds = seconds % 60;
+                var seconds_string = seconds.toString();
+                if (seconds_string.length < 2) {
+                    seconds_string = "0" + seconds_string;
+                }
+                document.getElementById("counter").innerText = minutes.toString() + ":" + seconds_string;
+            }, 200);
+            document.getElementById("stop_button").addEventListener("click", async function () {
+              await window.__TAURI__.invoke("end_capture");
+            });
+        });
+    </script>
+  </head>
+  <body style="background-color: #B76">
+    <main>
+        <h1 align="center" style="color: #FB0">CrabGrabber</h1>
+        <div><h1 id="counter">0:00</h1></div>
+        <button id="stop_button">Stop</button>
+    </main>
+  </body>
+</html>
