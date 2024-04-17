@@ -16,21 +16,21 @@ lazy_static! {
 	static ref ACTIVE_STREAM: Mutex<Option<CaptureStream>> = Mutex::new(None);
 }
 
-const THUMBNAIL_MAX: usize = 200;
-
-fn make_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4) -> String {
-	let size = if bitmap.width > bitmap.height {
-		let w = bitmap.width.min(THUMBNAIL_MAX);
-		let h = ((w as f64 / bitmap.width as f64) * bitmap.height as f64).ceil() as usize;
-		(w, h)
-	} else {
-		let h = bitmap.height.min(THUMBNAIL_MAX);
-		let w = ((h as f64 / bitmap.height as f64) * bitmap.width as f64).ceil() as usize;
-		(w, h)
+fn make_scaled_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4, max_width: usize, max_height: usize) -> String {
+	let (mut height, mut width) = (bitmap.width, bitmap.height);
+	if width > max_width {
+		width = max_width;
+		height = ((max_width as f64 / bitmap.width as f64) * bitmap.height as f64).ceil() as usize;
 	};
+
+	if height > max_height {
+		height = max_height;
+		width = ((max_height as f64 / bitmap.height as f64) * bitmap.width as f64).ceil() as usize;
+	};
+
 	let mut write_vec = vec![0u8; 0];
 	{
-		let mut encoder = png::Encoder::new(&mut write_vec, size.0 as u32, size.1 as u32);
+		let mut encoder = png::Encoder::new(&mut write_vec, width as u32, height as u32);
 		encoder.set_color(png::ColorType::Rgba);
 		encoder.set_depth(png::BitDepth::Eight);
 		encoder.set_source_gamma(png::ScaledFloat::from_scaled(45455)); // 1.0 / 2.2, scaled by 100000
@@ -43,16 +43,16 @@ fn make_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4) -> String {
 		);
 		encoder.set_source_chromaticities(source_chromaticities);
 		let mut writer = encoder.write_header().unwrap();
-		let mut image_data = vec![0u8; size.0 * size.1 * 4];
-		for y in 0..size.1 {
-			let sample_y = (bitmap.height * y) / size.1;
-			for x in 0..size.0 {
-				let sample_x = (bitmap.width * x) / size.0;
+		let mut image_data = vec![0u8; width * height * 4];
+		for y in 0..height {
+			let sample_y = (bitmap.height * y) / height;
+			for x in 0..width {
+				let sample_x = (bitmap.width * x) / width;
 				let [b, g, r, a] = bitmap.data[sample_x + sample_y * bitmap.width];
-				image_data[(x + y * size.0) * 4 + 0] = r;
-				image_data[(x + y * size.0) * 4 + 1] = g;
-				image_data[(x + y * size.0) * 4 + 2] = b;
-				image_data[(x + y * size.0) * 4 + 3] = a;
+				image_data[(x + y * width) * 4 + 0] = r;
+				image_data[(x + y * width) * 4 + 1] = g;
+				image_data[(x + y * width) * 4 + 2] = b;
+				image_data[(x + y * width) * 4 + 3] = a;
 			}
 		}
 		writer.write_image_data(&image_data).unwrap();
@@ -102,7 +102,7 @@ async fn get_windows(app: AppHandle, req: i32) -> String {
 		};
 
 		if let Ok(Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888))) = screenshot.map(|frame| frame.get_bitmap()) {
-			let image_base64 = make_base64_png_from_bitmap(image_bitmap_bgra8888);
+			let image_base64 = make_scaled_base64_png_from_bitmap(image_bitmap_bgra8888, 300, 200);
 			if !is_first {
 				window_list_json += ",\n";
 			}
@@ -132,7 +132,14 @@ fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), Str
 				.map_err(|error| error.to_string())?;
 			let stream = CaptureStream::new(config, |event_result| {
 				match event_result {
-					Ok(StreamEvent::Video(frame)) => println!("video frame: {}", frame.frame_id()),
+					Ok(StreamEvent::Video(frame)) => {
+						if let Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888)) = frame.get_bitmap() {
+							let image_base64 = make_scaled_base64_png_from_bitmap(image_bitmap_bgra8888, 1920, 1080);
+							println!("Got frame, {}", image_base64.len());
+						} else {
+							println!("No frame");
+						}
+					},
 					_ => {}
 				}
 			}).map_err(|error| error.to_string())?;
