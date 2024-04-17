@@ -6,7 +6,7 @@ use base64::Engine;
 use crabgrab::{capturable_content::{CapturableContent, CapturableContentFilter, CapturableWindow, CapturableWindowFilter}, capture_stream::{CaptureConfig, CapturePixelFormat, CaptureStream, StreamEvent}, feature::{bitmap::{FrameBitmap, FrameBitmapBgraUnorm8x4, VideoFrameBitmap}, screenshot::take_screenshot}};
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
-use tauri::Manager;
+use tauri::{AppHandle, Manager};
 use tokio::time::{timeout, Duration};
 use serde::Serialize;
 
@@ -61,14 +61,16 @@ fn make_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4) -> String {
 }
 
 #[derive(Serialize)]
+#[derive(Clone)]
 struct Item {
     id: String,
     thumbnail: String,
     title: String,
+	req: i32,
 }
 
 #[tauri::command]
-async fn get_windows() -> String {
+async fn get_windows(app: AppHandle, req: i32) -> String {
 	let filter = CapturableContentFilter {
 		windows: Some(CapturableWindowFilter {
 			desktop_windows: false,
@@ -108,9 +110,12 @@ async fn get_windows() -> String {
 			let item = Item {
 				id: format!("{}", id),
 				thumbnail: image_base64,
-				title: window.title()
+				title: window.title(),
+				req
 			};
-			window_list_json += &serde_json::to_string(&item).unwrap();
+			let item_json = serde_json::to_string(&item).unwrap();
+			app.emit_all("window_found", item).unwrap();
+			window_list_json += &item_json;
 		}
 	}
 	window_list_json += "]";
