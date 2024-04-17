@@ -59,7 +59,7 @@
         "width": 700,
         "height": 400,
         "resizable": false,
-        "title": "cggui",
+        "title": "Snippy",
         "label": "main",
         "url": "main.html"
       }

@@ -63,7 +63,7 @@ fn make_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4) -> String {
 #[derive(Serialize)]
 #[derive(Clone)]
 struct Item {
-    id: String,
+    id: u64,
     thumbnail: String,
     title: String,
 	req: i32,
@@ -108,7 +108,7 @@ async fn get_windows(app: AppHandle, req: i32) -> String {
 			}
 			is_first = false;
 			let item = Item {
-				id: format!("{}", id),
+				id: *id,
 				thumbnail: image_base64,
 				title: window.title(),
 				req
@@ -168,7 +168,7 @@ fn main() {
 		])
 		.setup(|app| {
 			let main_window = app.get_window("main").expect("Expected app to have main window");
-			main_window.open_devtools();
+			//main_window.open_devtools();
 			Ok(())
 		})
 		.run(tauri::generate_context!())

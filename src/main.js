@@ -1,13 +1,18 @@
 import { listen, TauriEvent } from 'https://esm.sh/v131/@tauri-apps/api@1.4.0/event'
 
-function make_tile(image_base64, id) {
+function make_tile(image_base64, id, title) {
     let content_image = document.createElement("img");
     content_image.src = "data:image/png;base64, " + image_base64;
     content_image.className = "tile-image";
+
+    let content_title = document.createElement("p");
+    content_title.innerText = title;
+    content_title.className = "tile-title";
     
     let content_div = document.createElement("div");
     content_div.className = "tile-contents";
     content_div.appendChild(content_image);
+    content_div.appendChild(content_title)
 
     let box_div = document.createElement("div");
     box_div.className = "tile";
@@ -25,7 +30,7 @@ function make_tile(image_base64, id) {
 listen("window_found", async event => {
     //log("window_found", event);
     let window = event.payload;
-    make_tile(window.thumbnail, window.id);
+    make_tile(window.thumbnail, window.id, window.title);
 });
 
 document.addEventListener("DOMContentLoaded", async (e) => {

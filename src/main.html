@@ -19,13 +19,33 @@
             width: 200px;
             background-color: #666;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            cursor: pointer;
+            padding: 2px;
+            border: solid 1px transparent;
+        }
+        .tile-contents:hover {
+            background-color: #f0f0f0;
+            border: solid 1px #CDF348;
+            box-shadow: 0px 0px 5px 1px #CDF348;
+
         }
         .tile-image {
             width: auto;
             height: auto;
+        }
+        .tile-title {
+            width: auto;
+            height: auto;
+            text-align: center;
+            overflow-x: hidden;
+            text-wrap: nowrap;
+            margin: 0px;
+            padding: 5px;
+            max-width: 90%;
         }
         .wrap {
             overflow: hidden;
@@ -33,14 +53,62 @@
             display: flex;
             flex-wrap: wrap;
         }
+        .bubble {
+            position: relative;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            max-width: 100%;
+            text-align: center;
+            margin: 5px;
+        }
+
+        .bubble::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: #f0f0f0;
+            border-bottom: 0;
+            margin-left: -20px;
+            margin-bottom: -20px;
+        }
+
+        .main {
+            display: flex;
+        }
+        .leftpanel {
+            width: 70%;
+            overflow-y: auto;
+            height: 100vh;
+        }
+        .rightpanel {
+            display: flex;
+            flex-direction: column;
+            width: 30%;
+            height: 100vh;
+            align-items: center;
+            justify-content: flex-end;
+        }
     </style>
     <script src="main.js" type="module"></script>
   </head>
-  <body style="background-color: #B76">
-    <main>
-        <h1 style="color: #FB0; text-align: center;">CrabGrabber</h1>
-        <div class="wrap" id="tile-container">
+  <body style="background-color: #B76; margin: 0px">
+    <div class="main">
+        <div class="leftpanel">
+            <div class="wrap" id="tile-container">
+            </div>
         </div>
-    </main>
+        <div class="rightpanel">
+            <div class="bubble">
+                <p>Hi I'm snippy! Pick a window to show me and I'll tell you what I see.</p>
+            </div>
+            <img src="snippy.png" style="width: 100%; max-width: 100%; height: auto"/>
+        </div>
+    </div>
   </body>
 </html>
