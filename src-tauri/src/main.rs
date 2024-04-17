@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tauri::Manager;
 use tokio::time::{timeout, Duration};
+use serde::Serialize;
 
 lazy_static! {
 	static ref WINDOW_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -59,6 +60,13 @@ fn make_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4) -> String {
 	base64::prelude::BASE64_STANDARD.encode(write_vec)
 }
 
+#[derive(Serialize)]
+struct Item {
+    id: String,
+    thumbnail: String,
+    title: String,
+}
+
 #[tauri::command]
 async fn get_windows() -> String {
 	let filter = CapturableContentFilter {
@@ -97,7 +105,12 @@ async fn get_windows() -> String {
 				window_list_json += ",\n";
 			}
 			is_first = false;
-			window_list_json += &format!("{{\"id\": {}, \"thumbnail\": \"{}\"}}", id, image_base64);
+			let item = Item {
+				id: format!("{}", id),
+				thumbnail: image_base64,
+				title: window.title()
+			};
+			window_list_json += &serde_json::to_string(&item).unwrap();
 		}
 	}
 	window_list_json += "]";
