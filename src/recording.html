@@ -23,6 +23,10 @@
             document.getElementById("stop_button").addEventListener("click", async function () {
               await window.__TAURI__.invoke("end_capture");
             });
+
+            document.getElementById("grab_button").addEventListener("click", async function () {
+              await window.__TAURI__.invoke("send_message", {msg: "What's on screen?"});
+            });
         });
     </script>
   </head>
@@ -31,6 +35,7 @@
         <h1 align="center" style="color: #FB0">CrabGrabber</h1>
         <div><h1 id="counter">0:00</h1></div>
         <button id="stop_button">Stop</button>
+        <button id="grab_button">Grab</button>
     </main>
   </body>
 </html>

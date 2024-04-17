@@ -3,17 +3,21 @@
 use std::{collections::HashMap, sync::atomic::{self, AtomicU64}};
 
 use base64::Engine;
-use crabgrab::{capturable_content::{CapturableContent, CapturableContentFilter, CapturableWindow, CapturableWindowFilter}, capture_stream::{CaptureConfig, CapturePixelFormat, CaptureStream, StreamEvent}, feature::{bitmap::{FrameBitmap, FrameBitmapBgraUnorm8x4, VideoFrameBitmap}, screenshot::take_screenshot}};
+use crabgrab::{capturable_content::{CapturableContent, CapturableContentFilter, CapturableWindow, CapturableWindowFilter}, capture_stream::{CaptureConfig, CapturePixelFormat, CaptureStream, StreamEvent}, feature::{bitmap::{FrameBitmap, FrameBitmapBgraUnorm8x4, VideoFrameBitmap}, screenshot::take_screenshot}, frame::VideoFrame};
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tauri::{AppHandle, Manager};
 use tokio::time::{timeout, Duration};
 use serde::Serialize;
+use futures::channel::oneshot::{Sender, channel};
+
+mod gptv;
 
 lazy_static! {
 	static ref WINDOW_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 	static ref WINDOW_MAP: Mutex<HashMap<CapturableWindow, u64>> = Mutex::new(HashMap::new());
 	static ref ACTIVE_STREAM: Mutex<Option<CaptureStream>> = Mutex::new(None);
+	static ref FRAME_REQUEST: Mutex<Option<Sender<VideoFrame>>> = Mutex::new(None);
 }
 
 fn make_scaled_base64_png_from_bitmap(bitmap: FrameBitmapBgraUnorm8x4, max_width: usize, max_height: usize) -> String {
@@ -133,11 +137,9 @@ fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), Str
 			let stream = CaptureStream::new(config, |event_result| {
 				match event_result {
 					Ok(StreamEvent::Video(frame)) => {
-						if let Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888)) = frame.get_bitmap() {
-							let image_base64 = make_scaled_base64_png_from_bitmap(image_bitmap_bgra8888, 1920, 1080);
-							println!("Got frame, {}", image_base64.len());
-						} else {
-							println!("No frame");
+						let mut frame_req = FRAME_REQUEST.lock();
+						if let Some(req) = frame_req.take() {
+							req.send(frame).unwrap();
 						}
 					},
 					_ => {}
@@ -150,6 +152,29 @@ fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), Str
 		}
 	}
 	Err("Unknown window".to_string())
+}
+
+#[tauri::command]
+async fn send_message(msg: String) -> Result<String, String> {
+	let rx = {
+		let mut frame_req = FRAME_REQUEST.lock();
+		let (tx, rx) = channel();
+		*frame_req = Some(tx);
+		rx
+	};
+	
+
+	let frame = rx.await.unwrap();
+	if let Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888)) = frame.get_bitmap() {
+		let image_base64 = make_scaled_base64_png_from_bitmap(image_bitmap_bgra8888, 1920, 1080);
+		println!("Got frame, sending {} bytes to GPT-V", image_base64.len());
+		let answer = gptv::send_request("What's in this image?".to_string(), image_base64).await.unwrap();
+		println!("Got response: {}", answer);
+	} else {
+		return Err("Couldn't get frame".to_string());
+	}
+	
+	Ok("".to_string())
 }
 
 #[tauri::command]
@@ -171,7 +196,8 @@ fn main() {
 		.invoke_handler(tauri::generate_handler![
 			get_windows,
 			begin_capture,
-			end_capture
+			end_capture,
+			send_message
 		])
 		.setup(|app| {
 			let main_window = app.get_window("main").expect("Expected app to have main window");
