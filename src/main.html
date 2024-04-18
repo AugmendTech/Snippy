@@ -17,7 +17,7 @@
         }
         .tile-contents {
             width: 200px;
-            background-color: #666;
+            background-color: #c0c0c0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -51,6 +51,7 @@
             overflow: hidden;
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
 /* Snippy sidebar */
@@ -63,7 +64,7 @@
             max-width: 100%;
             text-align: center;
             margin: 5px;
-            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.5);
         }
 
         .bubble::after {
@@ -85,6 +86,9 @@
             align-items: center;
             justify-content: flex-end;
             height: 100vh;
+            background-image: url("snippy-bg.png");
+            background-size: cover;
+            background-position: center;
         }
 /* main layout */
         .main {
@@ -201,7 +205,7 @@ code {
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="main.js" type="module"></script>
   </head>
-  <body style="background-color: #B76; margin: 0px">
+  <body style="margin: 0px">
     <div class="main">
         <div class="leftpanel">
             <div class="snippy-panel">
