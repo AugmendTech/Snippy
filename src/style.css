@@ -201,3 +201,12 @@ code {
 .hangup-btn:hover {
     background-color: #e60000; /* Darker red on hover */
 }
+
+/* Config */
+
+#config-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px 10px 20px;
+}

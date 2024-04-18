@@ -99,6 +99,20 @@ document.addEventListener("DOMContentLoaded", async (e) => {
         document.getElementById("tile-container").innerHTML = "";
         await window.__TAURI__.invoke("get_windows", {req: 1});
     });
+    document.getElementById("confirmConfig").addEventListener("click", async (event) => {
+        const api_key = document.getElementById("apiKeyText").value;
+        await window.__TAURI__.invoke("set_api_key", {key: api_key});
+        document.getElementById("tile-container-outer").hidden = false;
+        document.getElementById("config-panel-outer").hidden = true;
+        document.getElementById("snippy-text").innerText = "Pick a window to show me and we can start talking about what I see.";
+    });
+
+    let has_key = await window.__TAURI__.invoke("has_api_key");
+    if (!has_key) {
+        document.getElementById("config-panel-outer").hidden = false;
+        document.getElementById("tile-container-outer").hidden = true;
+        document.getElementById("snippy-text").innerText = "Before we can chat, we need to set up a few things.";
+    }
 
     let windows_json_string = await window.__TAURI__.invoke("get_windows", {req: 1});
 });

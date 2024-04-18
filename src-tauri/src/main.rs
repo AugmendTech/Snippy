@@ -10,6 +10,7 @@ use tauri::{AppHandle, Manager};
 use tokio::time::{timeout, Duration};
 use serde::Serialize;
 use futures::channel::oneshot::{Sender, channel};
+use std::env;
 
 mod gptv;
 
@@ -188,13 +189,28 @@ fn end_capture(app_handle: tauri::AppHandle) -> Result<(), String> {
 	Ok(())
 }
 
+#[tauri::command]
+fn has_api_key() -> bool {
+	match env::var("OPENAI_API_KEY") {
+        Ok(_) => return true,
+        Err(_) => return false
+    };
+}
+
+#[tauri::command]
+fn set_api_key(key: String) {
+	env::set_var("OPENAI_API_KEY", key);
+}
+
 fn main() {
 	tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![
 			get_windows,
 			begin_capture,
 			end_capture,
-			send_message
+			send_message,
+			has_api_key,
+			set_api_key,
 		])
 		.setup(|app| {
 			let main_window = app.get_window("main").expect("Expected app to have main window");
