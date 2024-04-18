@@ -146,8 +146,8 @@ fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), Str
 				}
 			}).map_err(|error| error.to_string())?;
 			*active_stream = Some(stream);
-			let app_window = app_handle.get_window("main").unwrap();
-			app_window.eval("window.location.replace('recording.html')").unwrap();
+			//let app_window = app_handle.get_window("main").unwrap();
+			//app_window.eval("window.location.replace('recording.html')").unwrap();
 			return Ok(());
 		}
 	}
@@ -162,19 +162,16 @@ async fn send_message(msg: String) -> Result<String, String> {
 		*frame_req = Some(tx);
 		rx
 	};
-	
 
 	let frame = rx.await.unwrap();
 	if let Ok(FrameBitmap::BgraUnorm8x4(image_bitmap_bgra8888)) = frame.get_bitmap() {
 		let image_base64 = make_scaled_base64_png_from_bitmap(image_bitmap_bgra8888, 1920, 1080);
 		println!("Got frame, sending {} bytes to GPT-V", image_base64.len());
-		let answer = gptv::send_request("What's in this image?".to_string(), image_base64).await.unwrap();
-		println!("Got response: {}", answer);
+		let answer = gptv::send_request(msg, image_base64).await.unwrap();
+		return Ok(answer);
 	} else {
 		return Err("Couldn't get frame".to_string());
 	}
-	
-	Ok("".to_string())
 }
 
 #[tauri::command]
@@ -186,8 +183,8 @@ fn end_capture(app_handle: tauri::AppHandle) -> Result<(), String> {
 			let _ = stream.stop();
 		}
 	}
-	let app_window = app_handle.get_window("main").unwrap();
-	app_window.eval("window.location.replace('main.html')").unwrap();
+	//let app_window = app_handle.get_window("main").unwrap();
+	//app_window.eval("window.location.replace('main.html')").unwrap();
 	Ok(())
 }
 
