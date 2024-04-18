@@ -114,6 +114,7 @@
 }
 
 .chat-message {
+    position: relative;
     max-width: 70%;
     margin-bottom: 10px;
     padding: 8px 12px;
@@ -127,7 +128,7 @@
 }
 
 .sent {
-    background-color: #0084ff;
+    background-color: #208b69;
     align-self: flex-end;
     color: white;
 }
@@ -155,7 +156,22 @@
     cursor: pointer;
     border-radius: 20px;
 }
+
+.chat-message p {
+    margin: 4px 0px 4px 0px;
+}
+
+pre {
+    padding: 5px 5px 5px 5px;
+    margin: 5px 0px 5px 0px;
+    background: black;
+}
+
+code {
+    font-weight: bold;
+}
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="main.js" type="module"></script>
   </head>
   <body style="background-color: #B76; margin: 0px">

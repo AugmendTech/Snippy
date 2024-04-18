@@ -39,11 +39,30 @@ listen("window_found", async event => {
     make_tile(window.thumbnail, window.id, window.title);
 });
 
+function gptMarkdownToHtml(text) {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+
+    return text.replace(codeBlockRegex, (match, lang, code) => {
+        // Encode <, >, and & for proper display in HTML
+        const encodedCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre><code class="${lang || ''}">${encodedCode}</code></pre>`;
+    });
+}
+
 function addMessage(text, isSent) {
     const chatHistory = document.getElementById("chat-history");
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message', isSent ? 'sent' : 'received');
-    newMessage.textContent = text;
+    if (!isSent) {
+        try {
+            var html = marked.marked(text);
+            newMessage.innerHTML = html;
+        } catch {
+            newMessage.innerHTML = gptMarkdownToHtml(text);
+        }
+    } else {
+        newMessage.textContent = text;
+    }
     chatHistory.appendChild(newMessage);
     // Scroll to the bottom of the chat history
     chatHistory.scrollTop = chatHistory.scrollHeight;
