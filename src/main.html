@@ -52,6 +52,8 @@
             display: flex;
             flex-wrap: wrap;
         }
+
+/* Snippy sidebar */
         .bubble {
             position: relative;
             background: #f0f0f0;
@@ -61,6 +63,7 @@
             max-width: 100%;
             text-align: center;
             margin: 5px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         }
 
         .bubble::after {
@@ -76,7 +79,14 @@
             margin-left: -20px;
             margin-bottom: -20px;
         }
-
+        .snippy-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100vh;
+        }
+/* main layout */
         .main {
             display: flex;
         }
@@ -90,14 +100,10 @@
             overflow-y: auto;
             height: 100vh;
         }
-        .snippy-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            height: 100vh;
-        }
+
         
+/* Chat panel and messages */
+
 .chat-panel {
     display: flex;
     flex-direction: column;
@@ -148,13 +154,14 @@
     margin-right: 10px;
 }
 
-.message-input button {
+#sendButton {
     padding: 10px 20px;
     border: none;
     background-color: #007bff;
     color: white;
     cursor: pointer;
     border-radius: 20px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
 .chat-message p {
@@ -170,6 +177,26 @@ pre {
 code {
     font-weight: bold;
 }
+.hangup-btn {
+    background-color: #ff3b30; /* Red color */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 50%; /* Round shape */
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    height: 100%;
+    aspect-ratio: 1;
+    margin: 0px 0px 0px 10px;
+}
+
+.hangup-btn:hover {
+    background-color: #e60000; /* Darker red on hover */
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="main.js" type="module"></script>
@@ -179,7 +206,7 @@ code {
         <div class="leftpanel">
             <div class="snippy-panel">
                 <div class="bubble">
-                    <p id="snippy-text">Hi I'm snippy! Pick a window to show me and we can start talking about what I see.</p>
+                    <p id="snippy-text">Hi I'm Snippy! Pick a window to show me and we can start talking about what I see.</p>
                 </div>
                 <img src="snippy.png" style="width: 100%; max-width: 100%; height: auto"/>
             </div>
@@ -197,6 +224,7 @@ code {
                     <div class="message-input">
                         <input id="sendText" type="text" placeholder="Type a message..." />
                         <button id="sendButton">Send</button>
+                        <button id="hangupButton" class="hangup-btn">X</button>
                     </div>
                 </div>
             </div>

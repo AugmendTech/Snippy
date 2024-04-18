@@ -90,10 +90,15 @@ document.addEventListener("DOMContentLoaded", async (e) => {
     document.getElementById("sendButton").addEventListener("click", (event) => {
         sendMessage();
     });
+    document.getElementById("hangupButton").addEventListener("click", async (event) => {
+        await window.__TAURI__.invoke("end_capture");
+        document.getElementById("tile-container-outer").hidden = false;
+        document.getElementById("chat-panel-outer").hidden = true;
+        document.getElementById("snippy-text").innerText = "Pick another window to show me and we can start talking about what I see.";
+
+        document.getElementById("tile-container").innerHTML = "";
+        await window.__TAURI__.invoke("get_windows", {req: 1});
+    });
 
     let windows_json_string = await window.__TAURI__.invoke("get_windows", {req: 1});
-    //let windows = JSON.parse(windows_json_string);
-    //windows.forEach(function (window) {
-    //    make_tile(window.thumbnail, window.id);
-    //});
 });
