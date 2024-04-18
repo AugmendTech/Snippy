@@ -4,6 +4,7 @@ async function doCapture(id) {
     await window.__TAURI__.invoke("begin_capture", { "windowId": id });
     document.getElementById("tile-container-outer").hidden = true;
     document.getElementById("chat-panel-outer").hidden = false;
+    document.getElementById("snippy-text").innerText = "Ask me anything you want and I'll try to help!";
 }
 
 function make_tile(image_base64, id, title) {

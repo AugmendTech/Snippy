@@ -20,9 +20,22 @@ struct Response {
 
 
 pub async fn send_request(msg: String, base64_png: String) -> Result<String, String> {
+    let prompt = "You are a helpful assistant named 'Snippy' in the style of 'Clippy' from Microsoft Office. \
+You can see the current window that the user is looking at. You can answer questions the user has about the current window. \
+If the user seems to have no specific question, feel free to offer advice on what they are currently looking at, but try to be concise. \
+";
     let body = json!({
         "model": "gpt-4-turbo",
         "messages": [
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            },
             {
                 "role": "user",
                 "content": [
