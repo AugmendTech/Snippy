@@ -1,6 +1,8 @@
 # Snippy
 
+<p align="center">
 <img src="src/snippy.png" alt="Snippy!" width="200"/>
+</p>
 
 Snippy is an AI assistant that can see a window that you share with it. It uses GPT-4 with vision as additional context for the AI assistant, and is a demo app for [CrabGrab](https://github.com/AugmendTech/CrabGrab), a Rust crate for doing application and screen capture.
 
