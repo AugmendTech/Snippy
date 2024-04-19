@@ -1,4 +1,0 @@
-[submodule "CrabGrab"]
-	path = CrabGrab
-	url = https://github.com/AugmendTech/CrabGrab.git
-	branch = liam/rust_crate
