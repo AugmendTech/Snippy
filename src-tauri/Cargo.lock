@@ -63,24 +63,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "base64 0.22.0",
- "crabgrab",
- "futures",
- "lazy_static",
- "parking_lot",
- "png",
- "reqwest",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tokio",
-]
-
-[[package]]
 name = "atk"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -424,12 +406,15 @@ dependencies = [
 [[package]]
 name = "crabgrab"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb57b7609fccc7de58ac0d194c6a60724a82bd26bfdcaa48f04055d2d8f1e550"
 dependencies = [
  "block",
  "bytemuck",
  "cocoa",
  "cocoa-foundation",
  "core-graphics-types",
+ "d3d12",
  "futures",
  "half",
  "lazy_static",
@@ -535,6 +520,16 @@ checksum = "ad291aa74992b9b7a7e88c38acbbf6ad7e107f1d90ee8775b7bc1fc3394f485c"
 dependencies = [
  "quote",
  "syn 2.0.58",
+]
+
+[[package]]
+name = "d3d12"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e3d747f100290a1ca24b752186f61f6637e1deffe3bf6320de6fcb29510a307"
+dependencies = [
+ "bitflags 2.5.0",
+ "winapi",
 ]
 
 [[package]]
@@ -2824,6 +2819,24 @@ name = "smallvec"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
+
+[[package]]
+name = "snippy"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.0",
+ "crabgrab",
+ "futures",
+ "lazy_static",
+ "parking_lot",
+ "png",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tokio",
+]
 
 [[package]]
 name = "socket2"

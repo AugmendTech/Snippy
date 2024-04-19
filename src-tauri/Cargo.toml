@@ -1,11 +1,12 @@
 [package]
-name = "app"
+name = "snippy"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
-default-run = "app"
+description = "Snippy, an AI assistant that sees your screen"
+authors = ["Augmend, Inc. <https://github.com/AugmendTech>", "Liam Taylor <https://github.com/OutOfTheVoid>", "Tim Misiak <https://github.com/TimMisiak>"]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/AugmendTech/cggui"
+default-run = "snippy"
 edition = "2021"
 rust-version = "1.60"
 
@@ -29,10 +30,10 @@ reqwest = { version = "0.12.3", features = ["json", "blocking"] }
 futures = "0.3.30"
 
 [target.'cfg(windows)'.dependencies]
-crabgrab = { path = "../CrabGrab", features = ["bitmap", "screenshot", "dx11"] }
+crabgrab = { version = "0.1.0", features = ["bitmap", "screenshot", "dx11"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-crabgrab = { path = "../CrabGrab", features = ["bitmap", "screenshot"] }
+crabgrab = { version = "0.1.0", features = ["bitmap", "screenshot"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

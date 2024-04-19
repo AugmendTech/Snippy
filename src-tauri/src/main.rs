@@ -76,6 +76,10 @@ struct Item {
 
 #[tauri::command]
 async fn get_windows(app: AppHandle, req: i32) -> String {
+	let token = match CaptureStream::test_access(false) {
+        Some(token) => token,
+        None => CaptureStream::request_access(false).await.expect("Expected capture access")
+    };
 	let filter = CapturableContentFilter {
 		windows: Some(CapturableWindowFilter {
 			desktop_windows: false,
@@ -98,7 +102,7 @@ async fn get_windows(app: AppHandle, req: i32) -> String {
 	let mut is_first = true;
 	for (window, id) in window_list.iter() {
 		let screenshot_config = CaptureConfig::with_window(window.clone(), CapturePixelFormat::Bgra8888).unwrap();
-		let screenshot_task = take_screenshot(screenshot_config);
+		let screenshot_task = take_screenshot(token, screenshot_config);
 		let screenshot_result = timeout(Duration::from_millis(250), screenshot_task).await;
 
 		let screenshot = match screenshot_result {
@@ -128,14 +132,18 @@ async fn get_windows(app: AppHandle, req: i32) -> String {
 }
 
 #[tauri::command]
-fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), String> {
+async fn begin_capture(app_handle: tauri::AppHandle, window_id: u64) -> Result<(), String> {
+	let token = match CaptureStream::test_access(false) {
+        Some(token) => token,
+        None => CaptureStream::request_access(false).await.expect("Expected capture access")
+    };
 	let mut active_stream = ACTIVE_STREAM.lock();
 	let window_map = WINDOW_MAP.lock();
 	for (window, id) in window_map.iter() {
 		if *id == window_id {
 			let config = CaptureConfig::with_window(window.clone(), CapturePixelFormat::Bgra8888)
 				.map_err(|error| error.to_string())?;
-			let stream = CaptureStream::new(config, |event_result| {
+			let stream = CaptureStream::new(token, config, |event_result| {
 				match event_result {
 					Ok(StreamEvent::Video(frame)) => {
 						let mut frame_req = FRAME_REQUEST.lock();
